@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ink & Chaos — A cinematic manga-styled Tic Tac Toe experience inspired by Death Note, Tokyo Ghoul, and Jujutsu Kaisen." />
+  <meta name="theme-color" content="#000000" />
+  <title>Ink &amp; Chaos — Manga Tic Tac Toe</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Bebas+Neue&family=Cinzel+Decorative:wght@700;900&family=Orbitron:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet" />
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/effects.css" />
+  <link rel="stylesheet" href="css/menu.css" />
+  <link rel="stylesheet" href="css/game.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       LOADING SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="loading-screen" class="screen active">
+    <canvas id="loading-canvas"></canvas>
+    <div class="loading-content">
+      <div class="loading-logo">
+        <svg id="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- X mark -->
+          <line class="logo-stroke" x1="30" y1="30" x2="170" y2="170" stroke="white" stroke-width="12" stroke-linecap="round"/>
+          <line class="logo-stroke" x1="170" y1="30" x2="30" y2="170" stroke="white" stroke-width="12" stroke-linecap="round"/>
+          <!-- O circle -->
+          <circle class="logo-circle" cx="100" cy="100" r="70" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="440"/>
+        </svg>
+      </div>
+      <h1 class="loading-title">墨と混沌</h1>
+      <h2 class="loading-subtitle">INK &amp; CHAOS</h2>
+      <div class="loading-bar-container">
+        <div class="loading-bar" id="loading-bar"></div>
+        <div class="loading-bar-glow"></div>
+      </div>
+      <p class="loading-text" id="loading-text">Summoning the spirits...</p>
+    </div>
+    <div class="loading-speed-lines" id="loading-speed-lines"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN MENU
+  ═══════════════════════════════════════════════ -->
+  <div id="menu-screen" class="screen">
+    <canvas id="menu-canvas"></canvas>
+    <div class="menu-speed-lines" id="menu-speed-lines"></div>
+    <div class="menu-particles" id="menu-particles"></div>
+
+    <!-- Japanese decorative text -->
+    <div class="jp-decorative left">死　闘　戦　略　勝　利</div>
+    <div class="jp-decorative right">混　沌　墨　道　気　力</div>
+
+    <div class="menu-content">
+      <div class="menu-header">
+        <div class="menu-kanji-bg">戦</div>
+        <div class="title-container">
+          <div class="title-eyebrow">— MANGA EDITION —</div>
+          <h1 class="menu-title">
+            <span class="title-ink">INK</span>
+            <span class="title-amp">&amp;</span>
+            <span class="title-chaos">CHAOS</span>
+          </h1>
+          <div class="title-jp">墨と混沌</div>
+          <div class="title-subtitle">TIC TAC TOE</div>
+        </div>
+      </div>
+
+      <nav class="menu-nav" id="menu-nav">
+        <button class="menu-btn" id="btn-play" data-action="play" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">⚔</span>
+          <span class="btn-text">PLAY</span>
+          <span class="btn-jp">対戦</span>
+          <span class="btn-ripple"></span>
+        </button>
+        <button class="menu-btn" id="btn-multiplayer" data-action="multiplayer" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">⚡</span>
+          <span class="btn-text">MULTIPLAYER</span>
+          <span class="btn-jp">対人戦</span>
+          <span class="btn-ripple"></span>
+        </button>
+        <button class="menu-btn" id="btn-ai" data-action="ai" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">👁</span>
+          <span class="btn-text">AI MODE</span>
+          <span class="btn-jp">AI対戦</span>
+          <span class="btn-ripple"></span>
+        </button>
+        <button class="menu-btn" id="btn-settings" data-action="settings" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">⚙</span>
+          <span class="btn-text">SETTINGS</span>
+          <span class="btn-jp">設定</span>
+          <span class="btn-ripple"></span>
+        </button>
+        <button class="menu-btn" id="btn-stats" data-action="stats" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">📊</span>
+          <span class="btn-text">STATISTICS</span>
+          <span class="btn-jp">統計</span>
+          <span class="btn-ripple"></span>
+        </button>
+        <button class="menu-btn" id="btn-credits" data-action="credits" data-sound="click">
+          <span class="btn-ink"></span>
+          <span class="btn-icon">✦</span>
+          <span class="btn-text">CREDITS</span>
+          <span class="btn-jp">制作</span>
+          <span class="btn-ripple"></span>
+        </button>
+      </nav>
+
+      <div class="menu-footer">
+        <span class="footer-version">v1.0.0</span>
+        <span class="footer-sep">｜</span>
+        <span class="footer-tag">Press any key to begin</span>
+        <span class="footer-sep">｜</span>
+        <span class="footer-copy">© 2024 MANGA STUDIO</span>
+      </div>
+    </div>
+
+    <!-- Floating ink blobs -->
+    <div class="ink-blob ink-blob-1"></div>
+    <div class="ink-blob ink-blob-2"></div>
+    <div class="ink-blob ink-blob-3"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MODE SELECT SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="mode-screen" class="screen">
+    <canvas id="mode-canvas"></canvas>
+    <div class="screen-header">
+      <button class="back-btn" id="mode-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>BACK</span>
+      </button>
+      <h2 class="screen-title">選択 — SELECT MODE</h2>
+    </div>
+
+    <div class="mode-content">
+      <div class="mode-cards" id="mode-cards">
+        <!-- Multiplayer Card -->
+        <div class="mode-card" id="mode-local" data-mode="local">
+          <div class="mode-card-bg"></div>
+          <div class="mode-card-ink"></div>
+          <div class="mode-card-icon">
+            <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="25" cy="25" r="12" fill="none" stroke="white" stroke-width="3"/>
+              <circle cx="55" cy="25" r="12" fill="none" stroke="white" stroke-width="3"/>
+              <path d="M10 65 Q25 45 40 55 Q55 45 70 65" fill="none" stroke="white" stroke-width="3"/>
+            </svg>
+          </div>
+          <h3 class="mode-card-title">VS PLAYER</h3>
+          <p class="mode-card-jp">対人戦</p>
+          <p class="mode-card-desc">Challenge a friend on the same device. Two souls clash in ink.</p>
+          <div class="mode-card-border"></div>
+        </div>
+
+        <!-- AI Card -->
+        <div class="mode-card" id="mode-ai" data-mode="ai">
+          <div class="mode-card-bg"></div>
+          <div class="mode-card-ink"></div>
+          <div class="mode-card-icon">
+            <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+              <rect x="15" y="20" width="50" height="40" rx="5" fill="none" stroke="white" stroke-width="3"/>
+              <circle cx="30" cy="40" r="5" fill="white"/>
+              <circle cx="50" cy="40" r="5" fill="white"/>
+              <line x1="40" y1="20" x2="40" y2="10" stroke="white" stroke-width="3"/>
+              <circle cx="40" cy="8" r="3" fill="white"/>
+            </svg>
+          </div>
+          <h3 class="mode-card-title">VS AI</h3>
+          <p class="mode-card-jp">AI対戦</p>
+          <p class="mode-card-desc">Face an artificial intelligence. Choose your fate wisely.</p>
+          <div class="mode-card-border"></div>
+        </div>
+      </div>
+
+      <!-- AI Difficulty -->
+      <div class="difficulty-panel" id="difficulty-panel">
+        <h3 class="difficulty-title">— SELECT DIFFICULTY —</h3>
+        <p class="difficulty-jp">難易度</p>
+        <div class="difficulty-options">
+          <button class="diff-btn" data-difficulty="easy">
+            <span class="diff-kanji">易</span>
+            <span class="diff-label">EASY</span>
+            <span class="diff-desc">The spirit sleeps</span>
+          </button>
+          <button class="diff-btn active" data-difficulty="medium">
+            <span class="diff-kanji">中</span>
+            <span class="diff-label">MEDIUM</span>
+            <span class="diff-desc">The spirit stirs</span>
+          </button>
+          <button class="diff-btn" data-difficulty="impossible">
+            <span class="diff-kanji">鬼</span>
+            <span class="diff-label">IMPOSSIBLE</span>
+            <span class="diff-desc">Death incarnate</span>
+          </button>
+        </div>
+        <button class="start-game-btn" id="start-ai-btn">
+          <span class="btn-ink"></span>
+          BEGIN BATTLE
+          <span class="btn-jp">戦闘開始</span>
+        </button>
+      </div>
+
+      <button class="start-game-btn hidden" id="start-local-btn">
+        <span class="btn-ink"></span>
+        BEGIN BATTLE
+        <span class="btn-jp">戦闘開始</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       GAME SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="game-screen" class="screen">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Player Cards -->
+    <div class="players-header">
+      <div class="player-card" id="player1-card">
+        <div class="player-card-bg"></div>
+        <div class="player-mark x-mark-small">
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <line x1="8" y1="8" x2="32" y2="32" stroke="white" stroke-width="4" stroke-linecap="round"/>
+            <line x1="32" y1="8" x2="8" y2="32" stroke="white" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="player-info">
+          <span class="player-name" id="p1-name">PLAYER 1</span>
+          <span class="player-jp">一番手</span>
+        </div>
+        <div class="player-score" id="p1-score">0</div>
+        <div class="player-active-indicator"></div>
+      </div>
+
+      <div class="versus-badge">
+        <div class="vs-text">VS</div>
+        <div class="vs-jp">対</div>
+        <div class="turn-indicator" id="turn-indicator">
+          <div class="turn-dot"></div>
+          <span id="turn-text">ROUND 1</span>
+        </div>
+      </div>
+
+      <div class="player-card right-card" id="player2-card">
+        <div class="player-card-bg"></div>
+        <div class="player-mark o-mark-small">
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="13" fill="none" stroke="white" stroke-width="4"/>
+          </svg>
+        </div>
+        <div class="player-info">
+          <span class="player-name" id="p2-name">PLAYER 2</span>
+          <span class="player-jp">二番手</span>
+        </div>
+        <div class="player-score" id="p2-score">0</div>
+        <div class="player-active-indicator"></div>
+      </div>
+    </div>
+
+    <!-- Game Board -->
+    <div class="board-container">
+      <div class="board-bg-effects">
+        <div class="board-speed-lines"></div>
+        <div class="board-glow"></div>
+      </div>
+      <div class="game-board" id="game-board">
+        <!-- Cells generated by JS -->
+      </div>
+      <!-- SVG grid lines drawn with animation -->
+      <svg class="board-grid-svg" id="board-grid-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Vertical lines -->
+        <line class="grid-line" x1="100" y1="10" x2="100" y2="290" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <line class="grid-line" x1="200" y1="10" x2="200" y2="290" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <!-- Horizontal lines -->
+        <line class="grid-line" x1="10" y1="100" x2="290" y2="100" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <line class="grid-line" x1="10" y1="200" x2="290" y2="200" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <!-- Win line (hidden by default) -->
+        <line class="win-line" id="win-line-svg" x1="0" y1="0" x2="0" y2="0" stroke="white" stroke-width="5" stroke-linecap="round" opacity="0"/>
+      </svg>
+    </div>
+
+    <!-- Game Controls -->
+    <div class="game-controls">
+      <button class="ctrl-btn" id="btn-restart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        <span>RESTART</span>
+      </button>
+      <button class="ctrl-btn" id="btn-menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span>MENU</span>
+      </button>
+    </div>
+
+    <!-- AI Thinking Indicator -->
+    <div class="ai-thinking" id="ai-thinking">
+      <div class="thinking-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="thinking-text">計算中... CALCULATING</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       RESULT OVERLAY (Win / Draw)
+  ═══════════════════════════════════════════════ -->
+  <div id="result-overlay" class="overlay">
+    <canvas id="result-canvas"></canvas>
+    <div class="result-content" id="result-content">
+      <div class="result-kanji" id="result-kanji"></div>
+      <div class="result-panel">
+        <div class="result-panel-crack" id="result-panel-crack"></div>
+        <div class="result-main-text" id="result-main-text"></div>
+        <div class="result-sub-text" id="result-sub-text"></div>
+        <div class="result-buttons">
+          <button class="result-btn primary" id="result-play-again">
+            <span class="btn-ink"></span>
+            <span>PLAY AGAIN</span>
+          </button>
+          <button class="result-btn" id="result-menu">
+            <span class="btn-ink"></span>
+            <span>MAIN MENU</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="result-particles" id="result-particles"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SETTINGS SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="settings-screen" class="screen">
+    <canvas id="settings-canvas"></canvas>
+    <div class="screen-header">
+      <button class="back-btn" id="settings-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>BACK</span>
+      </button>
+      <h2 class="screen-title">設定 — SETTINGS</h2>
+    </div>
+
+    <div class="settings-content">
+      <div class="settings-group">
+        <h3 class="settings-group-title">⚙ AUDIO</h3>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">MUSIC</span>
+            <span class="setting-jp">音楽</span>
+          </label>
+          <div class="toggle-switch" id="toggle-music" data-setting="music" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">SOUND FX</span>
+            <span class="setting-jp">効果音</span>
+          </label>
+          <div class="toggle-switch active" id="toggle-sfx" data-setting="sfx" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">VOLUME</span>
+            <span class="setting-jp">音量</span>
+          </label>
+          <div class="slider-container">
+            <input type="range" class="manga-slider" id="slider-volume" min="0" max="100" value="70" />
+            <div class="slider-value" id="vol-display">70%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">✦ VISUALS</h3>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">ANIMATION SPEED</span>
+            <span class="setting-jp">アニメ速度</span>
+          </label>
+          <div class="slider-container">
+            <input type="range" class="manga-slider" id="slider-anim" min="0" max="200" value="100" />
+            <div class="slider-value" id="anim-display">100%</div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">PARTICLES</span>
+            <span class="setting-jp">パーティクル</span>
+          </label>
+          <div class="toggle-switch active" id="toggle-particles" data-setting="particles" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">SCREEN SHAKE</span>
+            <span class="setting-jp">画面振動</span>
+          </label>
+          <div class="toggle-switch active" id="toggle-shake" data-setting="shake" role="switch" aria-checked="true" tabindex="0">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">FULLSCREEN</span>
+            <span class="setting-jp">全画面</span>
+          </label>
+          <button class="settings-btn" id="btn-fullscreen">TOGGLE</button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">⚔ GAME</h3>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">PLAYER 1 NAME</span>
+            <span class="setting-jp">プレイヤー1</span>
+          </label>
+          <input type="text" class="manga-input" id="p1-name-input" maxlength="12" placeholder="PLAYER 1" value="PLAYER 1"/>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">PLAYER 2 NAME</span>
+            <span class="setting-jp">プレイヤー2</span>
+          </label>
+          <input type="text" class="manga-input" id="p2-name-input" maxlength="12" placeholder="PLAYER 2" value="PLAYER 2"/>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">
+            <span class="setting-name">RESET SCORES</span>
+            <span class="setting-jp">スコアリセット</span>
+          </label>
+          <button class="settings-btn danger" id="btn-reset-scores">RESET</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       STATISTICS SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="stats-screen" class="screen">
+    <canvas id="stats-canvas"></canvas>
+    <div class="screen-header">
+      <button class="back-btn" id="stats-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>BACK</span>
+      </button>
+      <h2 class="screen-title">統計 — STATISTICS</h2>
+    </div>
+
+    <div class="stats-content">
+      <div class="stats-grid">
+        <div class="stat-card" id="stat-total-games">
+          <div class="stat-value" data-stat="totalGames">0</div>
+          <div class="stat-label">TOTAL GAMES</div>
+          <div class="stat-jp">総試合数</div>
+        </div>
+        <div class="stat-card" id="stat-p1-wins">
+          <div class="stat-value" data-stat="p1Wins">0</div>
+          <div class="stat-label">P1 WINS</div>
+          <div class="stat-jp">一番手の勝利</div>
+        </div>
+        <div class="stat-card" id="stat-p2-wins">
+          <div class="stat-value" data-stat="p2Wins">0</div>
+          <div class="stat-label">P2 WINS</div>
+          <div class="stat-jp">二番手の勝利</div>
+        </div>
+        <div class="stat-card" id="stat-draws">
+          <div class="stat-value" data-stat="draws">0</div>
+          <div class="stat-label">DRAWS</div>
+          <div class="stat-jp">引き分け</div>
+        </div>
+        <div class="stat-card" id="stat-streak">
+          <div class="stat-value" data-stat="winStreak">0</div>
+          <div class="stat-label">WIN STREAK</div>
+          <div class="stat-jp">連勝</div>
+        </div>
+        <div class="stat-card" id="stat-ai-wins">
+          <div class="stat-value" data-stat="aiWins">0</div>
+          <div class="stat-label">AI DEFEATS</div>
+          <div class="stat-jp">AI撃破</div>
+        </div>
+      </div>
+
+      <!-- Win rate bar -->
+      <div class="winrate-section">
+        <h3>BATTLE RECORD — 戦績</h3>
+        <div class="winrate-bar-container">
+          <div class="winrate-bar p1-bar" id="winrate-p1" style="width: 33%">P1</div>
+          <div class="winrate-bar draw-bar" id="winrate-draw" style="width: 33%">DRAW</div>
+          <div class="winrate-bar p2-bar" id="winrate-p2" style="width: 34%">P2</div>
+        </div>
+      </div>
+
+      <!-- Match History -->
+      <div class="match-history">
+        <h3>RECENT MATCHES — 最近の試合</h3>
+        <div class="history-list" id="history-list">
+          <div class="history-empty">No battles recorded yet...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       CREDITS SCREEN
+  ═══════════════════════════════════════════════ -->
+  <div id="credits-screen" class="screen">
+    <canvas id="credits-canvas"></canvas>
+    <div class="screen-header">
+      <button class="back-btn" id="credits-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>BACK</span>
+      </button>
+      <h2 class="screen-title">制作 — CREDITS</h2>
+    </div>
+
+    <div class="credits-content">
+      <div class="credits-panel">
+        <div class="credits-logo">墨</div>
+        <h3 class="credits-game-title">INK &amp; CHAOS</h3>
+        <p class="credits-subtitle">— A Manga Tic Tac Toe Experience —</p>
+
+        <div class="credits-section">
+          <div class="credits-role">GAME DESIGN</div>
+          <div class="credits-name">MANGA STUDIO</div>
+        </div>
+        <div class="credits-section">
+          <div class="credits-role">ART DIRECTION</div>
+          <div class="credits-name">INK &amp; CHAOS TEAM</div>
+        </div>
+        <div class="credits-section">
+          <div class="credits-role">INSPIRED BY</div>
+          <div class="credits-name">Death Note · Tokyo Ghoul<br/>Jujutsu Kaisen · Chainsaw Man<br/>Bleach · Vagabond</div>
+        </div>
+        <div class="credits-section">
+          <div class="credits-role">TECHNOLOGY</div>
+          <div class="credits-name">HTML5 · CSS3 · Vanilla JS<br/>GSAP · SVG Animations</div>
+        </div>
+        <div class="credits-section">
+          <div class="credits-role">FONTS</div>
+          <div class="credits-name">Noto Serif JP · Bebas Neue<br/>Cinzel Decorative · Permanent Marker</div>
+        </div>
+
+        <div class="credits-easter-egg" id="credits-easter" title="Click me...">
+          <span>⚡</span>
+          <span class="easter-hint">The hidden page holds power...</span>
+        </div>
+
+        <div class="credits-quote">
+          「 The strongest battle is the one fought with a single stroke of ink. 」
+          <br/>
+          <span class="credits-quote-jp">— 墨の道 —</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       GLOBAL EFFECTS LAYER
+  ═══════════════════════════════════════════════ -->
+  <!-- Cursor trail canvas -->
+  <canvas id="cursor-canvas"></canvas>
+  <!-- Transition overlay -->
+  <div id="transition-overlay" class="transition-overlay">
+    <div class="transition-ink"></div>
+    <div class="transition-lines"></div>
+  </div>
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+  <!-- Global ink splash overlay -->
+  <div id="ink-splash-overlay"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════════ -->
+  <script src="js/utils.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

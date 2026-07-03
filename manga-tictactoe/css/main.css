@@ -1,0 +1,316 @@
+/* ═══════════════════════════════════════════════════════════════════
+   main.css — Global styles, CSS variables, resets
+   Manga Tic Tac Toe — INK & CHAOS
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables ── */
+:root {
+  /* Color palette: pure black-and-white manga */
+  --ink-black: #000000;
+  --ink-dark: #0a0a0a;
+  --ink-deep: #111111;
+  --ink-mid: #1a1a1a;
+  --ink-gray: #333333;
+  --ink-silver: #555555;
+  --ink-mist: #888888;
+  --ink-smoke: #aaaaaa;
+  --paper-white: #ffffff;
+  --paper-cream: #f5f5f0;
+  --paper-gray: #dddddd;
+
+  /* Accent (single pop of white glow) */
+  --glow-white: rgba(255,255,255,0.8);
+  --glow-faint: rgba(255,255,255,0.15);
+  --glow-ultra: rgba(255,255,255,0.05);
+
+  /* Typography */
+  --font-manga: 'Bebas Neue', 'Cinzel Decorative', sans-serif;
+  --font-jp: 'Noto Serif JP', serif;
+  --font-body: 'Orbitron', sans-serif;
+  --font-hand: 'Permanent Marker', cursive;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 48px;
+  --space-2xl: 80px;
+
+  /* Borders */
+  --border-thin: 1px solid rgba(255,255,255,0.15);
+  --border-med: 2px solid rgba(255,255,255,0.3);
+  --border-thick: 3px solid rgba(255,255,255,0.5);
+  --border-solid: 2px solid var(--paper-white);
+
+  /* Transition speeds */
+  --transition-fast: 150ms;
+  --transition-med: 300ms;
+  --transition-slow: 600ms;
+  --transition-epic: 1200ms;
+
+  /* Z-index layers */
+  --z-bg: 0;
+  --z-content: 10;
+  --z-ui: 20;
+  --z-overlay: 50;
+  --z-transition: 80;
+  --z-cursor: 100;
+  --z-toast: 200;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink-black);
+  color: var(--paper-white);
+  font-family: var(--font-body);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  cursor: none; /* custom cursor */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollable on mobile */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+/* ── Custom Cursor ── */
+#cursor-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: var(--z-cursor);
+}
+
+/* ── Screen system ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink-black);
+  opacity: 0;
+  pointer-events: none;
+  z-index: var(--z-content);
+  overflow: hidden;
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Canvas backgrounds per screen */
+.screen canvas,
+.overlay canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: var(--z-overlay);
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Transition Overlay ── */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transition);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.transition-ink {
+  position: absolute;
+  inset: 0;
+  background: var(--ink-black);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.transition-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ── Screen Header ── */
+.screen-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: var(--border-thin);
+  background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+  z-index: var(--z-ui);
+}
+
+.screen-title {
+  font-family: var(--font-manga);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  letter-spacing: 4px;
+  color: var(--paper-white);
+  text-transform: uppercase;
+}
+
+/* ── Back Button ── */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: none;
+  border: var(--border-thin);
+  color: var(--paper-white);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: none;
+  transition: all var(--transition-med);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.6);
+}
+
+.back-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Toast System ── */
+#toast-container {
+  position: fixed;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--ink-deep);
+  color: var(--paper-white);
+  border: var(--border-thin);
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  white-space: nowrap;
+}
+
+/* ── Ink Splash Overlay ── */
+#ink-splash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-overlay - 1);
+  overflow: hidden;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-silver);
+  border-radius: 2px;
+}
+
+/* ── Focus styles ── */
+:focus-visible {
+  outline: 1px solid var(--paper-white);
+  outline-offset: 2px;
+}
+
+/* ── Ink Drop Button (shared) ── */
+.btn-ink {
+  position: absolute;
+  inset: 0;
+  background: var(--paper-white);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-med) cubic-bezier(0.87, 0, 0.13, 1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Paper texture overlay ── */
+.paper-texture {
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .screen-header {
+    padding: var(--space-md);
+  }
+  .screen-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --space-xl: 24px;
+    --space-2xl: 40px;
+  }
+}

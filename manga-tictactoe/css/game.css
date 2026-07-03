@@ -1,0 +1,836 @@
+/* ═══════════════════════════════════════════════════════════════════
+   game.css — Game board, player cards, result overlay styles
+   Manga Tic Tac Toe — INK & CHAOS
+═══════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════
+   GAME SCREEN LAYOUT
+═══════════════════════════ */
+#game-screen {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  padding: var(--space-md);
+  gap: var(--space-md);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════
+   PLAYER CARDS HEADER
+═══════════════════════════ */
+.players-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 3vw, 32px);
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+  z-index: var(--z-ui);
+}
+
+.player-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-thin);
+  flex: 1;
+  max-width: 220px;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: all var(--transition-med);
+  background: rgba(255,255,255,0.02);
+}
+
+.player-card.active {
+  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.07);
+  animation: activeGlow 2s ease-in-out infinite;
+}
+
+.player-card.right-card {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.player-card-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition-med);
+}
+
+.player-card.active .player-card-bg {
+  opacity: 1;
+}
+
+.player-mark {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));
+}
+
+.player-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.x-mark-small svg line,
+.o-mark-small svg circle {
+  transition: filter var(--transition-med);
+}
+
+.player-card.active .x-mark-small svg line,
+.player-card.active .o-mark-small svg circle {
+  filter: drop-shadow(0 0 8px white);
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.player-name {
+  font-family: var(--font-manga);
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  letter-spacing: 3px;
+  color: var(--paper-white);
+  line-height: 1;
+}
+
+.player-jp {
+  font-family: var(--font-jp);
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+}
+
+.player-score {
+  font-family: var(--font-manga);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--paper-white);
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.player-score.bump {
+  animation: scoreBump 0.4s ease-out;
+}
+
+@keyframes scoreBump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.5); filter: drop-shadow(0 0 20px white); }
+  100% { transform: scale(1); }
+}
+
+.player-active-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, white, transparent);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.player-card.active .player-active-indicator {
+  transform: scaleX(1);
+}
+
+/* ── VS Badge ── */
+.versus-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vs-text {
+  font-family: var(--font-manga);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.5);
+}
+
+.vs-jp {
+  font-family: var(--font-jp);
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+.turn-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: turnPulse 1.5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════
+   BOARD CONTAINER
+═══════════════════════════ */
+.board-container {
+  position: relative;
+  width: min(80vmin, 450px);
+  height: min(80vmin, 450px);
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.board-bg-effects {
+  position: absolute;
+  inset: -30px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Game Board ── */
+.game-board {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  z-index: 2;
+}
+
+/* ── Board SVG Grid ── */
+.board-grid-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.grid-line {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,0.5));
+}
+
+/* ─── Win Line SVG ─── */
+.win-line {
+  filter: drop-shadow(0 0 8px white) drop-shadow(0 0 16px rgba(255,255,255,0.5));
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+/* ═══════════════════════════
+   GAME CELLS
+═══════════════════════════ */
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.cell:not(.taken):hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Hover ink burst inside cell */
+.cell::after {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+.cell:not(.taken):hover::after {
+  transform: translate(-50%, -50%) scale(3);
+  opacity: 0;
+}
+
+/* Cell hover ghost */
+.cell-hover-ghost {
+  position: absolute;
+  inset: 20%;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.cell:not(.taken):hover .cell-hover-ghost {
+  opacity: 0.12;
+}
+
+/* ── Mark Containers ── */
+.mark-container {
+  position: absolute;
+  inset: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── X Mark (SVG) ── */
+.mark-x svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+}
+
+.mark-x .stroke1,
+.mark-x .stroke2 {
+  stroke: white;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+}
+
+.mark-x.drawn .stroke1 {
+  animation: drawX1 0.3s ease-out forwards;
+}
+
+.mark-x.drawn .stroke2 {
+  animation: drawX1 0.3s ease-out 0.15s forwards;
+}
+
+/* ── O Mark (SVG) ── */
+.mark-o svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+}
+
+.mark-o .circle-stroke {
+  stroke: white;
+  stroke-width: 7;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 502;
+  stroke-dashoffset: 502;
+}
+
+.mark-o.drawn .circle-stroke {
+  animation: drawO 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* ── Winning cell highlight ── */
+.cell.winning {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cell.winning .mark-x svg,
+.cell.winning .mark-o svg {
+  filter: drop-shadow(0 0 15px white) drop-shadow(0 0 30px rgba(255,255,255,0.5));
+  animation: winningPulse 1s ease-in-out infinite;
+}
+
+@keyframes winningPulse {
+  0%, 100% { filter: drop-shadow(0 0 10px white); }
+  50%       { filter: drop-shadow(0 0 25px white) drop-shadow(0 0 50px rgba(255,255,255,0.3)); }
+}
+
+/* ── Losing cells dim ── */
+.cell.losing {
+  opacity: 0.35;
+}
+
+/* ═══════════════════════════
+   GAME CONTROLS
+═══════════════════════════ */
+.game-controls {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  position: relative;
+  z-index: var(--z-ui);
+  padding: var(--space-sm) 0;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-xl);
+  background: transparent;
+  border: var(--border-thin);
+  color: var(--paper-white);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  cursor: none;
+  transition: all var(--transition-med);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+.ctrl-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
+}
+
+.ctrl-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ═══════════════════════════
+   RESULT OVERLAY
+═══════════════════════════ */
+#result-overlay {
+  z-index: var(--z-overlay);
+}
+
+.result-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+}
+
+/* ── Background kanji ── */
+.result-kanji {
+  position: absolute;
+  font-family: var(--font-jp);
+  font-size: clamp(150px, 30vw, 400px);
+  font-weight: 900;
+  color: rgba(255,255,255,0.03);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── Result panel ── */
+.result-panel {
+  position: relative;
+  border: var(--border-med);
+  padding: var(--space-xl) clamp(var(--space-xl), 10vw, 100px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  background: rgba(0, 0, 0, 0.85);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.result-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Panel crack lines for draw */
+.result-panel-crack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.result-panel-crack.show {
+  opacity: 1;
+  background:
+    linear-gradient(135deg, transparent 48%, rgba(255,255,255,0.15) 49%, rgba(255,255,255,0.15) 51%, transparent 52%) no-repeat 30% 20% / 60% 3px,
+    linear-gradient(120deg, transparent 48%, rgba(255,255,255,0.1) 49%, rgba(255,255,255,0.1) 51%, transparent 52%) no-repeat 50% 60% / 40% 2px;
+}
+
+.result-main-text {
+  font-family: var(--font-manga);
+  font-size: clamp(2.5rem, 10vw, 7rem);
+  color: var(--paper-white);
+  letter-spacing: 10px;
+  line-height: 1;
+  text-align: center;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.5));
+  position: relative;
+  z-index: 1;
+}
+
+.result-sub-text {
+  font-family: var(--font-body);
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 4px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.result-buttons {
+  display: flex;
+  gap: var(--space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Result buttons ── */
+.result-btn {
+  position: relative;
+  padding: var(--space-md) var(--space-xl);
+  border: var(--border-thin);
+  background: transparent;
+  color: white;
+  font-family: var(--font-manga);
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  letter-spacing: 4px;
+  cursor: none;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: all var(--transition-med);
+}
+
+.result-btn:hover {
+  border-color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-3px);
+}
+
+.result-btn.primary {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.result-btn.primary:hover {
+  background: rgba(255,255,255,0.85);
+}
+
+.result-btn .btn-ink {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ── Flash effect on win ── */
+.victory-flash {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: var(--z-overlay + 1);
+  pointer-events: none;
+  animation: victoryFlash 0.8s ease-out forwards;
+}
+
+/* ═══════════════════════════
+   STATS SCREEN
+═══════════════════════════ */
+#stats-screen {
+  overflow-y: auto;
+}
+
+.stats-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 90px var(--space-xl) var(--space-xl);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: var(--border-thin);
+  background: rgba(255,255,255,0.02);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: all var(--transition-med);
+}
+
+.stat-card:hover {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-4px);
+}
+
+.stat-value {
+  font-family: var(--font-manga);
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: var(--paper-white);
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+}
+
+.stat-label {
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.5);
+}
+
+.stat-jp {
+  font-family: var(--font-jp);
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 2px;
+}
+
+/* ── Win rate section ── */
+.winrate-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.winrate-section h3 {
+  font-family: var(--font-manga);
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.6);
+}
+
+.winrate-bar-container {
+  display: flex;
+  height: 40px;
+  width: 100%;
+  border: var(--border-thin);
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.winrate-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  transition: width 0.8s ease;
+  min-width: 20px;
+  animation: barFill 1s ease-out;
+}
+
+.p1-bar  { background: rgba(255,255,255,0.6); color: black; }
+.draw-bar { background: rgba(255,255,255,0.2); color: white; }
+.p2-bar  { background: rgba(255,255,255,0.4); color: black; }
+
+/* ── Match history ── */
+.match-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.match-history h3 {
+  font-family: var(--font-manga);
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.6);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-thin);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.02);
+}
+
+.history-result {
+  font-family: var(--font-manga);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  color: white;
+}
+
+.history-empty {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+/* ═══════════════════════════
+   CREDITS SCREEN
+═══════════════════════════ */
+#credits-screen {
+  overflow-y: auto;
+}
+
+.credits-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 90px var(--space-xl) var(--space-xl);
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.credits-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+  max-width: 600px;
+  width: 100%;
+  padding: var(--space-xl);
+  border: var(--border-thin);
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  background: rgba(255,255,255,0.02);
+}
+
+.credits-logo {
+  font-family: var(--font-jp);
+  font-size: 6rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.7);
+  line-height: 1;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.credits-game-title {
+  font-family: var(--font-manga);
+  font-size: clamp(2rem, 6vw, 4rem);
+  letter-spacing: 10px;
+  color: white;
+}
+
+.credits-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.5);
+}
+
+.credits-section {
+  text-align: center;
+  border-top: var(--border-thin);
+  padding-top: var(--space-lg);
+  width: 100%;
+}
+
+.credits-role {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: var(--space-sm);
+}
+
+.credits-name {
+  font-family: var(--font-manga);
+  font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+  letter-spacing: 4px;
+  color: var(--paper-white);
+  line-height: 1.5;
+}
+
+.credits-easter-egg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: none;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+  font-size: 2rem;
+}
+
+.credits-easter-egg:hover {
+  opacity: 1;
+}
+
+.credits-easter-egg:hover span:first-child {
+  animation: easterSpin 0.5s linear infinite;
+  display: inline-block;
+}
+
+.easter-hint {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.5);
+}
+
+.credits-quote {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  line-height: 2;
+  font-style: italic;
+  border-top: var(--border-thin);
+  padding-top: var(--space-lg);
+}
+
+.credits-quote-jp {
+  font-family: var(--font-jp);
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.3);
+}
+
+@media (max-width: 600px) {
+  .players-header { gap: 8px; }
+  .player-card { padding: var(--space-sm); max-width: 140px; }
+  .player-score { font-size: 1.5rem; }
+  .board-container { width: min(90vmin, 380px); height: min(90vmin, 380px); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .result-buttons { flex-direction: column; }
+}
